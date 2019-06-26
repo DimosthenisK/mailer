@@ -1,17 +1,19 @@
 /** Dependencies **/
-import { CustomValue } from '@nestjs/core/injector/module';
-import { DynamicModule, Module, Global, Provider } from '@nestjs/common';
+///@ts-ignore
+import { CustomValue } from "@nestjs/core/injector/module";
+///@ts-ignore
+import { DynamicModule, Module, Global, Provider } from "@nestjs/common";
 
 /** Constants **/
-import { MAILER_OPTIONS } from './constants/mailer-options.constant';
+import { MAILER_OPTIONS } from "./constants/mailer-options.constant";
 
 /** Interfaces **/
-import { MailerOptions } from './interfaces/mailer-options.interface';
-import { MailerAsyncOptions } from './interfaces/mailer-async-options.interface';
-import { MailerOptionsFactory } from './interfaces/mailer-options-factory.interface';
+import { MailerOptions } from "./interfaces/mailer-options.interface";
+import { MailerAsyncOptions } from "./interfaces/mailer-async-options.interface";
+import { MailerOptionsFactory } from "./interfaces/mailer-options-factory.interface";
 
 /** Services **/
-import { MailerService } from './mailer.service';
+import { MailerService } from "./mailer.service";
 
 @Global()
 @Module({})
@@ -20,7 +22,7 @@ export class MailerCoreModule {
     const MailerOptionsProvider: CustomValue = {
       name: MAILER_OPTIONS,
       provide: MAILER_OPTIONS,
-      useValue: options,
+      useValue: options
     };
 
     return {
@@ -30,12 +32,12 @@ export class MailerCoreModule {
         MailerOptionsProvider,
 
         /** Services **/
-        MailerService,
+        MailerService
       ],
       exports: [
         /** Services **/
-        MailerService,
-      ],
+        MailerService
+      ]
     };
   }
 
@@ -49,38 +51,38 @@ export class MailerCoreModule {
         ...providers,
 
         /** Services **/
-        MailerService,
+        MailerService
       ],
       imports: options.imports,
       exports: [
         /** Services **/
-        MailerService,
-      ],
+        MailerService
+      ]
     };
   }
 
   private static createAsyncProviders(options: MailerAsyncOptions): Provider[] {
-    const providers: Provider[] = [
-      this.createAsyncOptionsProvider(options),
-    ];
+    const providers: Provider[] = [this.createAsyncOptionsProvider(options)];
 
     if (options.useClass) {
       providers.push({
         provide: options.useClass,
-        useClass: options.useClass,
+        useClass: options.useClass
       });
     }
 
     return providers;
   }
 
-  private static createAsyncOptionsProvider(options: MailerAsyncOptions): Provider {
+  private static createAsyncOptionsProvider(
+    options: MailerAsyncOptions
+  ): Provider {
     if (options.useFactory) {
       return {
         name: MAILER_OPTIONS,
         provide: MAILER_OPTIONS,
         useFactory: options.useFactory,
-        inject: options.inject || [],
+        inject: options.inject || []
       };
     }
 
@@ -90,7 +92,7 @@ export class MailerCoreModule {
       useFactory: async (optionsFactory: MailerOptionsFactory) => {
         return optionsFactory.createMailerOptions();
       },
-      inject: [options.useExisting || options.useClass],
+      inject: [options.useExisting || options.useClass]
     };
   }
 }

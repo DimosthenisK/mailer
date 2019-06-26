@@ -1,4 +1,5 @@
 /** Dependencies **/
+///@ts-ignore
 import { DynamicModule, Module } from '@nestjs/common';
 
 /** Modules **/

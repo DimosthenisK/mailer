@@ -1,5 +1,6 @@
 /** Dependencies **/
 import * as SMTPTransport from 'nodemailer/lib/smtp-transport';
+///@ts-ignore
 import { DynamicModule, Type } from '@nestjs/common';
 import { SendMailOptions, SentMessageInfo } from 'nodemailer';
 

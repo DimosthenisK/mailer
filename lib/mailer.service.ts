@@ -1,5 +1,6 @@
 /** Dependencies **/
 import { get } from 'lodash';
+///@ts-ignore
 import { Injectable, Inject } from '@nestjs/common';
 import { createTransport, SentMessageInfo, Transporter } from 'nodemailer';
 
