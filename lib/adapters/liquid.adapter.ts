@@ -1,7 +1,7 @@
 /** Dependencies **/
 import * as path from "path";
 import { get } from "lodash";
-import Liquid, * as liq from "liquidjs";
+import Liquid from "liquidjs";
 
 /** Interfaces **/
 import { MailerOptions } from "../interfaces/mailer-options.interface";
