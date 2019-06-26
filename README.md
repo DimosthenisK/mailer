@@ -66,7 +66,7 @@ import { HandlebarsAdapter, MailerModule } from '@nest-modules/mailer';
         },
         template: {
           dir: __dirname + '/templates',
-          adapter: new HandlebarsAdapter(), // or new PugAdapter()
+          adapter: new HandlebarsAdapter(), // or new PugAdapter() or new LiquidAdapter()
           options: {
             strict: true,
           },
@@ -123,7 +123,7 @@ export class ExampleService {
         to: 'test@nestjs.com',
         from: 'noreply@nestjs.com',
         subject: 'Testing Nest Mailermodule with template ✔',
-        template: 'welcome', // The `.pug` or `.hbs` extension is appended automatically.
+        template: 'welcome', // The `.pug` or `.hbs` or `.liquid` extension is appended automatically.
         context: {  // Data to be sent to template engine.
           code: 'cf1a3f828287',
           username: 'john doe',
@@ -140,7 +140,7 @@ export class ExampleService {
         to: 'test@nestjs.com',
         from: 'noreply@nestjs.com',
         subject: 'Testing Nest Mailermodule with template ✔',
-        template: __dirname + '/welcome', // The `.pug` or `.hbs` extension is appended automatically.
+        template: __dirname + '/welcome', // The `.pug` or `.hbs` or `.liquid` extension is appended automatically.
         context: {  // Data to be sent to template engine.
           code: 'cf1a3f828287',
           username: 'john doe',
@@ -157,6 +157,7 @@ export class ExampleService {
 * [Paweł Partyka](https://github.com/partyka95)
 * [Cristiam Diaz](https://github.com/cdiaz)
 * [Pat McGowan](https://github.com/p-mcgowan)
+* [Dimosthenis Kalaitzis](https://github.com/dimosthenisK)
 
 ### License
 
