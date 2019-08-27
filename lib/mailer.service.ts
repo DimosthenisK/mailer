@@ -76,15 +76,18 @@ export class MailerService {
         );
       }
 
-      this.previewTransporter = createTransport({
-        host: account.smtp.host,
-        port: account.smtp.port,
-        secure: account.smtp.secure,
-        auth: {
-          user: account.user,
-          pass: account.pass
-        }
-      });
+      this.previewTransporter = createTransport(
+        {
+          host: account.smtp.host,
+          port: account.smtp.port,
+          secure: account.smtp.secure,
+          auth: {
+            user: account.user,
+            pass: account.pass
+          }
+        },
+        this.mailerOptions.defaults
+      );
 
       if (this.templateAdapter) {
         this.previewTransporter.use("compile", (mail, callback) => {
