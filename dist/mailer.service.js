@@ -55,33 +55,31 @@ let MailerService = class MailerService {
     }
     enablePreviewing() {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!this.mailerOptions.enablePreviewing) {
-                this.mailerOptions.enablePreviewing = true;
-                let account;
-                try {
-                    account = yield nodemailer_1.createTestAccount();
+            this.mailerOptions.enablePreviewing = true;
+            let account;
+            try {
+                account = yield nodemailer_1.createTestAccount();
+            }
+            catch (err) {
+                throw new Error("Couldn't enable preview, an error occured - " + err.message);
+            }
+            this.previewTransporter = nodemailer_1.createTransport({
+                host: account.smtp.host,
+                port: account.smtp.port,
+                secure: account.smtp.secure,
+                auth: {
+                    user: account.user,
+                    pass: account.pass
                 }
-                catch (err) {
-                    throw new Error("Couldn't enable preview, an error occured - " + err.message);
-                }
-                this.previewTransporter = nodemailer_1.createTransport({
-                    host: account.smtp.host,
-                    port: account.smtp.port,
-                    secure: account.smtp.secure,
-                    auth: {
-                        user: account.user,
-                        pass: account.pass
+            }, this.mailerOptions.defaults);
+            if (this.templateAdapter) {
+                this.previewTransporter.use("compile", (mail, callback) => {
+                    if (mail.data.html) {
+                        return callback();
                     }
-                }, this.mailerOptions.defaults);
-                if (this.templateAdapter) {
-                    this.previewTransporter.use("compile", (mail, callback) => {
-                        if (mail.data.html) {
-                            return callback();
-                        }
-                        let compiled = this.templateAdapter.compile(mail, callback, this.mailerOptions);
-                        return compiled;
-                    });
-                }
+                    let compiled = this.templateAdapter.compile(mail, callback, this.mailerOptions);
+                    return compiled;
+                });
             }
         });
     }
