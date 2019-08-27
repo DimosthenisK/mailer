@@ -7,7 +7,8 @@ import {
   createTestAccount,
   SentMessageInfo,
   Transporter,
-  getTestMessageUrl
+  getTestMessageUrl,
+  TestAccount
 } from "nodemailer";
 
 /** Constants **/
@@ -22,6 +23,7 @@ import { ISendMailOptions } from "./interfaces/send-mail-options.interface";
 export class MailerService {
   private transporter: Transporter;
   private previewTransporter: Transporter;
+  private templateAdapter: TemplateAdapter;
 
   constructor(
     @Inject(MAILER_OPTIONS) private readonly mailerOptions: MailerOptions
@@ -42,40 +44,62 @@ export class MailerService {
     );
 
     /** Adapter setup **/
-    const templateAdapter: TemplateAdapter = get(
-      this.mailerOptions,
-      "template.adapter"
-    );
+    this.templateAdapter = get(this.mailerOptions, "template.adapter");
 
-    if (templateAdapter) {
+    if (this.templateAdapter) {
       this.transporter.use("compile", (mail, callback) => {
         if (mail.data.html) {
           return callback();
         }
 
-        return templateAdapter.compile(mail, callback, this.mailerOptions);
+        return this.templateAdapter.compile(mail, callback, this.mailerOptions);
       });
     }
 
     if (mailerOptions.enablePreviewing)
-      //test transporter setup
-      createTestAccount((err, account) => {
-        if (err) {
-          throw new Error(
-            "Couldn't enable preview, an error occured - " + err.message
-          );
-        }
-
-        this.previewTransporter = createTransport({
-          host: account.smtp.host,
-          port: account.smtp.port,
-          secure: account.smtp.secure,
-          auth: {
-            user: account.user,
-            pass: account.pass
-          }
+      this.enablePreviewing()
+        .then()
+        .catch(err => {
+          throw err;
         });
+  }
+
+  public async enablePreviewing() {
+    if (!this.mailerOptions.enablePreviewing) {
+      this.mailerOptions.enablePreviewing = true;
+      let account: TestAccount;
+      try {
+        account = await createTestAccount();
+      } catch (err) {
+        throw new Error(
+          "Couldn't enable preview, an error occured - " + err.message
+        );
+      }
+
+      this.previewTransporter = createTransport({
+        host: account.smtp.host,
+        port: account.smtp.port,
+        secure: account.smtp.secure,
+        auth: {
+          user: account.user,
+          pass: account.pass
+        }
       });
+
+      if (this.templateAdapter) {
+        this.previewTransporter.use("compile", (mail, callback) => {
+          if (mail.data.html) {
+            return callback();
+          }
+
+          return this.templateAdapter.compile(
+            mail,
+            callback,
+            this.mailerOptions
+          );
+        });
+      }
+    }
   }
 
   public async sendMail(
