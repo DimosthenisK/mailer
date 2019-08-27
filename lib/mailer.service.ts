@@ -91,15 +91,18 @@ export class MailerService {
 
       if (this.templateAdapter) {
         this.previewTransporter.use("compile", (mail, callback) => {
+          console.log("Compiling template");
           if (mail.data.html) {
             return callback();
           }
 
-          return this.templateAdapter.compile(
+          let compiled = this.templateAdapter.compile(
             mail,
             callback,
             this.mailerOptions
           );
+          console.log(compiled);
+          return compiled;
         });
       }
     }
@@ -112,7 +115,7 @@ export class MailerService {
     if (preview) {
       if (!this.mailerOptions.enablePreviewing) {
         throw new Error(
-          "Previewing is not currently enabled, enable it during initialization"
+          "Previewing is not currently enabled, enable it during initialization or with enablePreviewing()"
         );
       }
       let mailInfo = await this.previewTransporter.sendMail(sendMailOptions);
