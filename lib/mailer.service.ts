@@ -65,44 +65,42 @@ export class MailerService {
   }
 
   public async enablePreviewing() {
-    if (!this.mailerOptions.enablePreviewing) {
-      this.mailerOptions.enablePreviewing = true;
-      let account: TestAccount;
-      try {
-        account = await createTestAccount();
-      } catch (err) {
-        throw new Error(
-          "Couldn't enable preview, an error occured - " + err.message
-        );
-      }
-
-      this.previewTransporter = createTransport(
-        {
-          host: account.smtp.host,
-          port: account.smtp.port,
-          secure: account.smtp.secure,
-          auth: {
-            user: account.user,
-            pass: account.pass
-          }
-        },
-        this.mailerOptions.defaults
+    this.mailerOptions.enablePreviewing = true;
+    let account: TestAccount;
+    try {
+      account = await createTestAccount();
+    } catch (err) {
+      throw new Error(
+        "Couldn't enable preview, an error occured - " + err.message
       );
+    }
 
-      if (this.templateAdapter) {
-        this.previewTransporter.use("compile", (mail, callback) => {
-          if (mail.data.html) {
-            return callback();
-          }
+    this.previewTransporter = createTransport(
+      {
+        host: account.smtp.host,
+        port: account.smtp.port,
+        secure: account.smtp.secure,
+        auth: {
+          user: account.user,
+          pass: account.pass
+        }
+      },
+      this.mailerOptions.defaults
+    );
 
-          let compiled = this.templateAdapter.compile(
-            mail,
-            callback,
-            this.mailerOptions
-          );
-          return compiled;
-        });
-      }
+    if (this.templateAdapter) {
+      this.previewTransporter.use("compile", (mail, callback) => {
+        if (mail.data.html) {
+          return callback();
+        }
+
+        let compiled = this.templateAdapter.compile(
+          mail,
+          callback,
+          this.mailerOptions
+        );
+        return compiled;
+      });
     }
   }
 
