@@ -69,7 +69,11 @@ let MailerService = class MailerService {
                 if (!this.mailerOptions.enablePreviewing) {
                     throw new Error("Previewing is not currently enabled, enable it during initialization");
                 }
-                return yield this.previewTransporter.sendMail(sendMailOptions);
+                let mailInfo = yield this.previewTransporter.sendMail(sendMailOptions);
+                return {
+                    mailInfo,
+                    previewUrl: nodemailer_1.getTestMessageUrl(mailInfo)
+                };
             }
             return yield this.transporter.sendMail(sendMailOptions);
         });

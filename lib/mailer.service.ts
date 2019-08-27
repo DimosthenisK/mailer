@@ -6,7 +6,8 @@ import {
   createTransport,
   createTestAccount,
   SentMessageInfo,
-  Transporter
+  Transporter,
+  getTestMessageUrl
 } from "nodemailer";
 
 /** Constants **/
@@ -87,7 +88,11 @@ export class MailerService {
           "Previewing is not currently enabled, enable it during initialization"
         );
       }
-      return await this.previewTransporter.sendMail(sendMailOptions);
+      let mailInfo = await this.previewTransporter.sendMail(sendMailOptions);
+      return {
+        mailInfo,
+        previewUrl: getTestMessageUrl(mailInfo)
+      };
     }
     return await this.transporter.sendMail(sendMailOptions);
   }
