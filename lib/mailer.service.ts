@@ -91,7 +91,6 @@ export class MailerService {
 
       if (this.templateAdapter) {
         this.previewTransporter.use("compile", (mail, callback) => {
-          console.log("Compiling template");
           if (mail.data.html) {
             return callback();
           }
@@ -101,7 +100,6 @@ export class MailerService {
             callback,
             this.mailerOptions
           );
-          console.log(compiled);
           return compiled;
         });
       }

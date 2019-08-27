@@ -6,6 +6,8 @@ export declare class MailerService {
     private readonly mailerOptions;
     private transporter;
     private previewTransporter;
+    private templateAdapter;
     constructor(mailerOptions: MailerOptions);
+    enablePreviewing(): Promise<void>;
     sendMail(sendMailOptions: ISendMailOptions, preview?: boolean): Promise<SentMessageInfo>;
 }

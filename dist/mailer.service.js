@@ -37,19 +37,31 @@ let MailerService = class MailerService {
         /** Transporter setup **/
         this.transporter = nodemailer_1.createTransport(this.mailerOptions.transport, this.mailerOptions.defaults);
         /** Adapter setup **/
-        const templateAdapter = lodash_1.get(this.mailerOptions, "template.adapter");
-        if (templateAdapter) {
+        this.templateAdapter = lodash_1.get(this.mailerOptions, "template.adapter");
+        if (this.templateAdapter) {
             this.transporter.use("compile", (mail, callback) => {
                 if (mail.data.html) {
                     return callback();
                 }
-                return templateAdapter.compile(mail, callback, this.mailerOptions);
+                return this.templateAdapter.compile(mail, callback, this.mailerOptions);
             });
         }
         if (mailerOptions.enablePreviewing)
-            //test transporter setup
-            nodemailer_1.createTestAccount((err, account) => {
-                if (err) {
+            this.enablePreviewing()
+                .then()
+                .catch(err => {
+                throw err;
+            });
+    }
+    enablePreviewing() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.mailerOptions.enablePreviewing) {
+                this.mailerOptions.enablePreviewing = true;
+                let account;
+                try {
+                    account = yield nodemailer_1.createTestAccount();
+                }
+                catch (err) {
                     throw new Error("Couldn't enable preview, an error occured - " + err.message);
                 }
                 this.previewTransporter = nodemailer_1.createTransport({
@@ -60,14 +72,24 @@ let MailerService = class MailerService {
                         user: account.user,
                         pass: account.pass
                     }
-                });
-            });
+                }, this.mailerOptions.defaults);
+                if (this.templateAdapter) {
+                    this.previewTransporter.use("compile", (mail, callback) => {
+                        if (mail.data.html) {
+                            return callback();
+                        }
+                        let compiled = this.templateAdapter.compile(mail, callback, this.mailerOptions);
+                        return compiled;
+                    });
+                }
+            }
+        });
     }
     sendMail(sendMailOptions, preview = false) {
         return __awaiter(this, void 0, void 0, function* () {
             if (preview) {
                 if (!this.mailerOptions.enablePreviewing) {
-                    throw new Error("Previewing is not currently enabled, enable it during initialization");
+                    throw new Error("Previewing is not currently enabled, enable it during initialization or with enablePreviewing()");
                 }
                 let mailInfo = yield this.previewTransporter.sendMail(sendMailOptions);
                 return {
