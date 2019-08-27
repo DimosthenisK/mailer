@@ -30,24 +30,47 @@ const mailer_options_constant_1 = require("./constants/mailer-options.constant")
 let MailerService = class MailerService {
     constructor(mailerOptions) {
         this.mailerOptions = mailerOptions;
-        if (!mailerOptions.transport || Object.keys(mailerOptions.transport).length <= 0) {
-            throw new Error('Make sure to provide a nodemailer transport configuration object, connection url or a transport plugin instance.');
+        if (!mailerOptions.transport ||
+            Object.keys(mailerOptions.transport).length <= 0) {
+            throw new Error("Make sure to provide a nodemailer transport configuration object, connection url or a transport plugin instance.");
         }
         /** Transporter setup **/
         this.transporter = nodemailer_1.createTransport(this.mailerOptions.transport, this.mailerOptions.defaults);
         /** Adapter setup **/
-        const templateAdapter = lodash_1.get(this.mailerOptions, 'template.adapter');
+        const templateAdapter = lodash_1.get(this.mailerOptions, "template.adapter");
         if (templateAdapter) {
-            this.transporter.use('compile', (mail, callback) => {
+            this.transporter.use("compile", (mail, callback) => {
                 if (mail.data.html) {
                     return callback();
                 }
                 return templateAdapter.compile(mail, callback, this.mailerOptions);
             });
         }
+        if (mailerOptions.enablePreviewing)
+            //test transporter setup
+            nodemailer_1.createTestAccount((err, account) => {
+                if (err) {
+                    throw new Error("Couldn't enable preview, an error occured - " + err.message);
+                }
+                this.previewTransporter = nodemailer_1.createTransport({
+                    host: account.smtp.host,
+                    port: account.smtp.port,
+                    secure: account.smtp.secure,
+                    auth: {
+                        user: account.user,
+                        pass: account.pass
+                    }
+                });
+            });
     }
-    sendMail(sendMailOptions) {
+    sendMail(sendMailOptions, preview = false) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (preview) {
+                if (!this.mailerOptions.enablePreviewing) {
+                    throw new Error("Previewing is not currently enabled, enable it during initialization");
+                }
+                return yield this.previewTransporter.sendMail(sendMailOptions);
+            }
             return yield this.transporter.sendMail(sendMailOptions);
         });
     }

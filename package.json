@@ -6,7 +6,6 @@
   "types": "dist/index",
   "private": false,
   "scripts": {
-    "preversion": "rm -rf dist && tsc -p tsconfig.json",
     "version": "git add .",
     "postversion": "git push && git push --tags"
   },
@@ -23,7 +22,8 @@
   "author": "Paweł Partyka <partyka95@icloud.com>",
   "contributors": [
     "Paweł Partyka <partyka95@icloud.com>",
-    "Cristiam Díaz <c.diaz@udla.edu.co>"
+    "Cristiam Díaz <c.diaz@udla.edu.co>",
+    "Dimosthenis Kalaitzis <dimostheniskalaitzis@gmail.com>"
   ],
   "license": "MIT",
   "bugs": {
